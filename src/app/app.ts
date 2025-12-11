@@ -6,10 +6,10 @@ import { FirstName } from './features/first-name/first-name';
 import { RxContainer } from './rx/rx-container/rx-container';
 import { List } from './starwars/list/list';
 import { Container } from './yoloGame/container/container';
-
+import { Coingecko } from './coingecko/coingecko';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Alert, FirstName, Container, RxContainer, BakeryContainer, List],
+  imports: [RouterOutlet, Alert, FirstName, Container, RxContainer, BakeryContainer, List, Coingecko],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

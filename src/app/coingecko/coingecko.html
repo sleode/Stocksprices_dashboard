@@ -1,0 +1,31 @@
+<h1>Top 10 Cryptocurrencies {{ (coins$ | async)?.length }}</h1>
+
+<div>Filtre sélectionné : {{ selectedCoin | async }}</div>
+<br />
+<br />
+@for (symbolType of symbolTypes$ | async; track symbolType) {
+  <button type="button" (click)="selectedCoin.next(symbolType)">{{ symbolType }}</button>
+}
+
+<br /><br />
+
+<h3>Coins filtrés ({{ (filteredCoins$ | async)?.length }})</h3>
+@for (coin of filteredCoins$ | async; track coin.id) {
+  <fieldset>
+    <legend>Coin Details</legend>
+    <div>
+      <h3>{{ coin.name }} ({{ coin.symbol }})</h3>
+      <img [src]="coin.image" alt="{{ coin.name }}" width="48" height="48" style="margin-bottom: 10px;" />
+      <div>
+        <ul>
+          <li>Current Price: {{ coin.current_price | currency:'USD' }}</li>
+          <li>Market Cap Rank: {{ coin.market_cap_rank }}</li>
+          <li>24h Change: {{ coin.price_change_percentage_24h | number:'1.2-2' }}%</li>
+          <li>Market Cap: {{ coin.market_cap | currency:'USD':'symbol':'1.0-0' }}</li>
+          <li>Total Volume: {{ coin.total_volume | currency:'USD':'symbol':'1.0-0' }}</li>
+          <li>Circulating Supply: {{ coin.circulating_supply | number }}</li>
+        </ul>
+      </div>
+    </div>
+  </fieldset>
+}
