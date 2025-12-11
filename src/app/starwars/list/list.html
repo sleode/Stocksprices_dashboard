@@ -1,0 +1,27 @@
+<h1>Star Wars Planets List {{ (planets$ | async)?.length }}</h1>
+
+<div>Filtre sélécetionne : {{ selectedFilter | async }}</div>
+<br />
+<br />
+@for (terrainType of terrainTypes$ | async; track terrainType) {
+<button type="button" (click)="selectedFilter.next(terrainType)">{{ terrainType }}</button>
+}
+
+<br /><br />
+
+<h3>Planètes filtrées ({{ (filteredPlanets$ | async)?.length }})</h3>
+@for (planet of filteredPlanets$ | async; track planet.name) {
+<fieldset>
+  <legend>Planet Details</legend>
+  <div>
+    <h3>{{ planet.name }}</h3>
+    <div>
+      <ul>
+        <li>Population: {{ planet.population }}</li>
+        <li>Climate: {{ planet.climate }}</li>
+        <li>Terrain: {{ planet.terrain }}</li>
+      </ul>
+    </div>
+  </div>
+</fieldset>
+}
