@@ -1,0 +1,18 @@
+First name selected: {{ firstName | uppercase }}
+<br />
+@for (name of firstNameAvailables; track $index) {
+<button
+  (click)="changeFirstName(name)"
+  [style.textDecoration]="name === firstName ? 'underline' : 'none'"
+>
+  {{ name }}
+</button>
+}
+
+<br />
+
+<input type="text" placeholder="Enter new first name" [(ngModel)]="newFirstName" />
+
+<button [disabled]="!newFirstName.length" (click)="addFirstName(newFirstName)">
+  Add First Name
+</button>
