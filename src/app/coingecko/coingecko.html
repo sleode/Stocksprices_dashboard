@@ -1,31 +1,172 @@
-<h1>Top 10 Cryptocurrencies {{ (coins$ | async)?.length }}</h1>
+<div class="crypto-dashboard">
 
-<div>Filtre sélectionné : {{ selectedCoin | async }}</div>
-<br />
-<br />
-@for (symbolType of symbolTypes$ | async; track symbolType) {
-  <button type="button" (click)="selectedCoin.next(symbolType)">{{ symbolType }}</button>
-}
+  <!-- ONGLETS -->
+  <div class="tabs">
+    <button class="tab-button" 
+            [class.active]="(activeTab$ | async) === 'overview'"
+            (click)="activeTab$.next('overview')">
+      Overview
+    </button>
+    <button class="tab-button" 
+            [class.active]="(activeTab$ | async) === 'buysell'"
+            (click)="activeTab$.next('buysell')">
+      Buy & Sell
+    </button>
+  </div>
 
-<br /><br />
+  <!-- TAB OVERVIEW -->
+  <div *ngIf="(activeTab$ | async) === 'overview'" class="tab-content">
 
-<h3>Coins filtrés ({{ (filteredCoins$ | async)?.length }})</h3>
-@for (coin of filteredCoins$ | async; track coin.id) {
-  <fieldset>
-    <legend>Coin Details</legend>
-    <div>
-      <h3>{{ coin.name }} ({{ coin.symbol }})</h3>
-      <img [src]="coin.image" alt="{{ coin.name }}" width="48" height="48" style="margin-bottom: 10px;" />
-      <div>
-        <ul>
-          <li>Current Price: {{ coin.current_price | currency:'USD' }}</li>
-          <li>Market Cap Rank: {{ coin.market_cap_rank }}</li>
-          <li>24h Change: {{ coin.price_change_percentage_24h | number:'1.2-2' }}%</li>
-          <li>Market Cap: {{ coin.market_cap | currency:'USD':'symbol':'1.0-0' }}</li>
-          <li>Total Volume: {{ coin.total_volume | currency:'USD':'symbol':'1.0-0' }}</li>
-          <li>Circulating Supply: {{ coin.circulating_supply | number }}</li>
-        </ul>
+  <!-- SELECTEUR DE CRYPTO -->
+  <div class="filter">
+    <label for="coinSelect" class="filter-label">Sélectionner une crypto :</label>
+    <select id="coinSelect" (change)="selectedCoin$.next($any($event.target).value)">
+      <option value="">Toutes</option>
+      <option *ngFor="let symbol of symbolTypes$ | async" [value]="symbol.toLowerCase()">
+        {{ symbol }}
+      </option>
+    </select>
+  </div>
+
+  <!-- OVERVIEW - TOP 20 CRYPTOS LES PLUS TRADÉES -->
+  <section class="overview">
+    <h3>Overview</h3>
+    <div class="overview-grid">
+      <div *ngFor="let coin of topTraded$ | async" class="overview-card">
+        <img [src]="coin.image" alt="{{ coin.name }}" class="coin-logo" width="40" height="40">
+        <div class="coin-info">
+          <h4>{{ coin.symbol.toUpperCase() }}</h4>
+          <p class="name">{{ coin.name }}</p>
+          <p class="price">{{ coin.current_price | currency:'USD' }}</p>
+          <p class="change" [class.positive]="coin.price_change_percentage_24h >= 0" [class.negative]="coin.price_change_percentage_24h < 0">
+            {{ coin.price_change_percentage_24h | number:'1.2-2' }}%
+          </p>
+        </div>
       </div>
     </div>
-  </fieldset>
-}
+  </section>
+
+  <!-- TOP GAINERS ET LOSERS HORIZONTAUX -->
+  <div class="gainers-losers-container">
+    <!-- TOP GAINERS -->
+    <section class="top-gainers">
+      <h3>Top 5 Gainers 24h</h3>
+      <div class="coins-list">
+        <div *ngFor="let coin of topGainers$ | async" class="coin-item">
+          <img [src]="coin.image" alt="{{ coin.name }}" class="coin-logo" width="32" height="32">
+          <div class="coin-details">
+            <p class="name">{{ coin.name }}</p>
+            <p class="symbol">{{ coin.symbol.toUpperCase() }}</p>
+            <p class="change">{{ coin.price_change_percentage_24h | number:'1.2-2' }}%</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOP LOSERS -->
+    <section class="top-losers">
+      <h3>Top 5 Losers 24h</h3>
+      <div class="coins-list">
+        <div *ngFor="let coin of topLosers$ | async" class="coin-item">
+          <img [src]="coin.image" alt="{{ coin.name }}" class="coin-logo" width="32" height="32">
+          <div class="coin-details">
+            <p class="name">{{ coin.name }}</p>
+            <p class="symbol">{{ coin.symbol.toUpperCase() }}</p>
+            <p class="change">{{ coin.price_change_percentage_24h | number:'1.2-2' }}%</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- TABLEAU PRINCIPAL DES COINS -->
+  <section class="coin-table">
+    <h3>Liste des Cryptos</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Symbole</th>
+          <th>Prix USD</th>
+          <th>Variation 24h</th>
+          <th>Volume 24h</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let coin of filteredCoins$ | async">
+          <td><img [src]="coin.image" alt="{{ coin.name }}" class="coin-logo" width="32" height="32"> {{ coin.name }}</td>
+          <td>{{ coin.symbol.toUpperCase() }}</td>
+          <td>{{ coin.current_price | currency:'USD' }}</td>
+          <td [class.positive]="coin.price_change_percentage_24h >= 0"
+              [class.negative]="coin.price_change_percentage_24h < 0">
+            {{ coin.price_change_percentage_24h | number:'1.2-2' }}%
+          </td>
+          <td>
+            {{ coin.total_volume | number:'1.0-0' }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  </div>
+
+  <!-- TAB BUY & SELL -->
+  <div *ngIf="(activeTab$ | async) === 'buysell'" class="tab-content">
+    <div class="selected-filter">Échange Cryptomonnaies</div>
+
+    <div class="exchange-container">
+      <div class="exchange-section">
+        <h3>Sélectionner les cryptos à échanger</h3>
+        
+        <div class="exchange-form">
+          <div class="form-group">
+            <label>Crypto à envoyer :</label>
+            <select>
+              <option value="">-- Choisir une crypto --</option>
+              <option *ngFor="let coin of coins$ | async" [value]="coin.symbol.toLowerCase()">
+                {{ coin.name }} ({{ coin.symbol.toUpperCase() }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Montant :</label>
+            <input type="number" placeholder="Entrez le montant" />
+          </div>
+
+          <div class="form-group">
+            <label>Crypto à recevoir :</label>
+            <select>
+              <option value="">-- Choisir une crypto --</option>
+              <option *ngFor="let coin of coins$ | async" [value]="coin.symbol.toLowerCase()">
+                {{ coin.name }} ({{ coin.symbol.toUpperCase() }})
+              </option>
+            </select>
+          </div>
+
+          <button class="exchange-button">Calculer l'échange</button>
+        </div>
+      </div>
+
+      <div class="exchange-rates">
+        <h3>Taux de change actuels</h3>
+        <table class="rates-table">
+          <thead>
+            <tr>
+              <th>Crypto</th>
+              <th>Contre USD</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let coin of (coins$ | async)?.slice(0, 15)">
+              <td><img [src]="coin.image" alt="{{ coin.name }}" class="coin-logo" width="24" height="24"> {{ coin.symbol.toUpperCase() }}</td>
+              <td>{{ coin.current_price | currency:'USD' }}</td>
+              <td><button class="small-btn">Échanger</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
