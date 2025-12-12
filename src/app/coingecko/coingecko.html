@@ -3,6 +3,11 @@
   <!-- ONGLETS -->
   <div class="tabs">
     <button class="tab-button" 
+          [class.active]="(activeTab$ | async) === 'home'"
+          (click)="activeTab$.next('home')">
+    Home
+    </button>
+    <button class="tab-button" 
             [class.active]="(activeTab$ | async) === 'overview'"
             (click)="activeTab$.next('overview')">
       Overview
@@ -11,6 +16,12 @@
             [class.active]="(activeTab$ | async) === 'buysell'"
             (click)="activeTab$.next('buysell')">
       Buy & Sell
+    </button>
+    
+    <button class="tab-button" 
+            [class.active]="(activeTab$ | async) === 'cryptoNews'"
+            (click)="activeTab$.next('cryptoNews')">
+    News
     </button>
   </div>
 
@@ -170,3 +181,34 @@
     </div>
   </div>
 
+ 
+
+<!-- NOUVEL ONGLET : CRYPTONEWS -->
+<div *ngIf="(activeTab$ | async) === 'cryptoNews'" class="tab-content">
+  <h3>News</h3>
+  <div *ngIf="cryptonews$ | async as news; else noNews">
+    <ul>
+      <li *ngFor="let article of news">
+        <a [href]="article.link" target="_blank">{{ article.title }}</a>
+        <p>Source: {{ article.source }} | Publié le: {{ article.publishedAt | date }}</p>
+      </li>
+    </ul>
+  </div>
+  <ng-template #noNews>
+    <p>Aucune actualité disponible.</p>
+  </ng-template>
+</div>
+
+<!-- Contenu de l'onglet Home -->
+<div *ngIf="(activeTab$ | async) === 'home'" class="tab-content">
+  <h2>Bienvenue sur la page de connexion</h2>
+  <form (submit)="login(username.value, password.value); $event.preventDefault()" class="login-form">
+    <label for="username">Nom d'utilisateur</label>
+    <input id="username" #username type="text" placeholder="Entrez votre nom d'utilisateur" required />
+
+    <label for="password">Mot de passe</label>
+    <input id="password" #password type="password" placeholder="Entrez votre mot de passe" required />
+
+    <button type="submit">Se connecter</button>
+  </form>
+</div>

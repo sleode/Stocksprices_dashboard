@@ -51,11 +51,58 @@ export class Coingecko implements AfterViewInit {
   @ViewChildren('sparkline') sparklines!: QueryList<any>;
 
   // ---- GESTION DES ONGLETS ----
-  activeTab$ = new BehaviorSubject<'overview' | 'buysell'>('overview');
+  activeTab$ = new BehaviorSubject<'home'|'overview' | 'buysell'|'history'|'cryptoNews'>('overview');
 
   // ---- STATE REACTIF ----
   selectedCoin$ = new BehaviorSubject<string | null>(null); // Filtre réactif
   refreshInterval$ = new BehaviorSubject<number>(5000); // 5s par défaut
+  cryptonews$ = new BehaviorSubject<any[]>([]); // Données pour l'onglet "News"
+
+// Méthode pour gérer la connexion
+login(username: string, password: string) {
+  if (username === 'admin' && password === 'password') {
+    alert('Connexion réussie !');
+  } else {
+    alert('Nom d’utilisateur ou mot de passe incorrect.');
+  }
+}
+
+
+
+
+
+//--- FETCH CRYPTO NEWS ----
+  ngOnInitNews() {
+    this.fetchCryptoNews(); // Exemple avec Bitcoin
+  }
+
+  fetchCryptoNews() {
+    const apiUrl = 'https://newsapi.org/v2/everything';
+    const params = {
+      q: 'cryptocurrency', // Requête générale pour les actualités sur les cryptomonnaies
+      apiKey: 'd6de228c494b42d496d5736baf9c988e', // Remplacez par votre clé API valide
+      language: 'fr', //  spécifiez la langue des actualités (ex. : 'en','fr')
+      sortBy: 'publishedAt', // Facultatif : trier par date de publication
+      pageSize: 100, //nombre maximum d'articles par page (max : 100)
+    };
+  
+    this.http.get<any>(apiUrl, { params }).subscribe({
+      next: (response) => {
+        const news = response.articles.map((article: any) => ({
+          title: article.title,
+          link: article.url,
+          publishedAt: article.publishedAt,
+          source: article.source.name,
+        }));
+        this.cryptonews$.next(news); // Met à jour les actualités
+      },
+      error: (err) => console.error('Error fetching crypto news:', err),
+    });
+  }
+  
+
+     
+
 
   private readonly apiUrl = 'https://api.coingecko.com/api/v3/coins/markets';
 
